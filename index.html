@@ -294,19 +294,69 @@
             calculateTotal();
         });
 
-        // Form submission handling
+       // Form submission handling
         document.querySelector('form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             try {
-                // Submit to Netlify
-                const response = await fetch('/', {
+                // First submit to Netlify
+                const netlifyResponse = await fetch('/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams(new FormData(this)).toString()
                 });
 
-                if (response.ok) {
+                // Prepare data for Google Sheets
+                const formData = new FormData(this);
+                const orderData = {
+                    timestamp: new Date().toISOString(),
+                    firstName: formData.get('firstName'),
+                    lastName: formData.get('lastName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    address: formData.get('address') || 'No address provided',
+                    pickupDate: formData.get('pickupDate'),
+                    deliveryOption: formData.get('deliveryOption'),
+                    deliveryMiles: formData.get('deliveryMiles') || '0',
+                    totalPrice: document.getElementById('orderTotal').textContent,
+                    products: []
+                };
+
+                // Get all product entries
+                document.querySelectorAll('.product-entry').forEach(entry => {
+                    const colorSelect = entry.querySelector('select[name*="[color]"]');
+                    const productSelect = entry.querySelector('select[name*="[type]"]');
+                    const quantityInput = entry.querySelector('input[name*="[quantity]"]');
+                    
+                    const colorValue = colorSelect.value;
+                    const productValue = productSelect.value;
+                    const quantity = quantityInput.value;
+
+                    if (colorValue && productValue) {
+                        const colorName = products[colorValue].name;
+                        const productName = products[colorValue].items[productValue].name;
+                        const productPrice = products[colorValue].items[productValue].price;
+
+                        orderData.products.push({
+                            color: colorName,
+                            product: productName,
+                            quantity: quantity,
+                            price: productPrice,
+                            subtotal: (productPrice * quantity).toFixed(2)
+                        });
+                    }
+                });
+
+                // Send to Google Sheets
+                const sheetsResponse = await fetch('https://script.google.com/macros/s/AKfycbxtdtRdAr3agy3l2iaXuDDw0svWXlWKdIa_jdpC6_mrYmOHxdQGcq50UFMfig6xyLZ-/exec', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orderData)
+                });
+
+                if (netlifyResponse.ok) {
                     // Show success message
                     alert('Thank you for your order! We will contact you shortly to confirm your order details.');
                     // Reset the form
