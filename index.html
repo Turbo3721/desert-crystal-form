@@ -24,8 +24,15 @@
     </style>
 </head>
 <body>
-    <form name="desert-crystal-order" data-netlify="true" method="POST">
-        <input type="hidden" name="form-name" value="desert-crystal-order">
+    <form 
+  name="desert-crystal-order" 
+  method="POST" 
+  data-netlify="true"
+  data-netlify-honeypot="bot-field"
+  action="/success"
+>
+<input type="hidden" name="form-name" value="desert-crystal-order">
+<input type="hidden" name="bot-field">
         
         <div class="form-section">
             <h2>Contact Information</h2>
