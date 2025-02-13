@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Desert Crystal Order Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        .form-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="email"], input[type="tel"], select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .required { color: red; }
+        .disclaimer { font-size: 0.9em; background: #f9f9f9; padding: 15px; margin-top: 20px; }
+        .product-entry { border: 1px solid #eee; padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+        .remove-product { background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .total-section { font-size: 1.2em; font-weight: bold; margin: 20px 0; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        .add-product { background-color: #4CAF50; color: white; }
+        .submit-button { background-color: #2196F3; color: white; width: 100%; }
+    </style>
+</head>
+<body>
+    <form name="desert-crystal-order" data-netlify="true" method="POST">
+        <input type="hidden" name="form-name" value="desert-crystal-order">
+        
+        <div class="form-section">
+            <h2>Contact Information</h2>
+            <div class="form-group">
+                <label>First Name <span class="required">*</span></label>
+                <input type="text" name="firstName" required>
+            </div>
+            <div class="form-group">
+                <label>Last Name <span class="required">*</span></label>
+                <input type="text" name="lastName" required>
+            </div>
+            <div class="form-group">
+                <label>Email <span class="required">*</span></label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label>Phone (for call or text) <span class="required">*</span></label>
+                <input type="tel" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label>Address <span class="required">*</span></label>
+                <textarea name="address" rows="3" required></textarea>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Order Details</h2>
+            <div class="form-group">
+                <label>Pick-up Date Requested <span class="required">*</span></label>
+                <input type="date" name="pickupDate" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Delivery Option <span class="required">*</span></label>
+                <select name="deliveryOption" required id="deliveryOption">
+                    <option value="">Select an option</option>
+                    <option value="pickup">Pick-up (Free)</option>
+                    <option value="delivery_local">Delivery - EM or SS ($5)</option>
+                    <option value="delivery_outside">Delivery - Outside EM/SS ($5 + $1 per mile)</option>
+                </select>
+            </div>
+
+            <div id="mileageInput" class="form-group" style="display: none;">
+                <label>Distance in Miles</label>
+                <input type="number" name="deliveryMiles" id="deliveryMiles" min="0" step="0.1">
+            </div>
+
+            <div id="productEntries">
+                <!-- Product entries will be added here -->
+            </div>
+
+            <button type="button" class="add-product" onclick="addProductEntry()">+ Add Product</button>
+
+            <div class="total-section">
+                Total: $<span id="orderTotal">0.00</span>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <h3>Important Disclosures</h3>
+            <p>• This product is not for resale and is processed and prepared in a home-based location without state or local inspection.</p>
+            <p>• Orders could take up to 96-Hours if not in stock</p>
+            <p>• This product was prepared in a location that handles common allergens (milk, soy, wheat, eggs, peanuts, tree nuts, fish, shellfish)</p>
+            <p>• Products may contain: Sugar, Water, Agar Agar, Citric Acid, Candy Flavoring, Food Coloring, edible decorative elements</p>
+            <p>• Store at room temperature in dry, airtight container for up to two weeks</p>
+            <p>• No refunds or returns once order is submitted</p>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label>
+                <input type="checkbox" name="agreementCheckbox" required>
+                I have read and agree to all disclosures above <span class="required">*</span>
+            </label>
+        </div>
+
+        <button type="submit" class="submit-button">Submit Order</button>
+    </form>
+
+    <script>
+        const products = {
+            red: {
+                name: "RED - STRAWBERRY",
+                items: {
+                    "geo_2": {name: "2pc Geo Crystals", price: 6},
+                    "geo_4": {name: "4pc Geo Crystals", price: 10},
+                    "geo_6": {name: "6pc Geo Crystals", price: 12},
+                    "shards": {name: "6oz Crystal Shards", price: 12},
+                    "cubes": {name: "48pc Crystal Cubes", price: 14},
+                    "bars": {name: "12pc Crystal Bars", price: 14},
+                    "stones_regular": {name: "15pc Crystal Stones", price: 26},
+                    "stones_stuffed": {name: "15pc Crystal Stones (Stuffed w/ Strawberry Jam)", price: 32},
+                    "daxtrine_small": {name: "1pc Small Daxtrine Crystal", price: 4},
+                    "daxtrine_large": {name: "1pc Large Daxtrine Crystal", price: 6},
+                    "daxtrine_combo_2": {name: "2pc Daxtrine Crystal Combo", price: 8},
+                    "daxtrine_combo_4": {name: "4pc Daxtrine Crystal Combo", price: 14},
+                    "daxtrine_combo_6": {name: "6pc Daxtrine Crystal Combo", price: 18},
+                    "lucia_2": {name: "2pc Lucia Crystals (Stuffed w/ Strawberry Jam)", price: 14},
+                    "lucia_4": {name: "4pc Lucia Crystals (Stuffed w/ Strawberry Jam)", price: 26},
+                    "lucia_6": {name: "6pc Lucia Crystals (Stuffed w/ Strawberry Jam)", price: 36},
+                    "assortment_small": {name: "Small Assortment Box", price: 28},
+                    "assortment_large": {name: "Large Assortment Box", price: 40}
+                }
+            },
+            blue: {
+                name: "BLUE/GREEN - STRAWBERRY",
+                items: {
+                    "geo_2": {name: "2pc Geo Crystals", price: 6},
+                    "geo_4": {name: "4pc Geo Crystals", price: 10},
+                    "geo_6": {name: "6pc Geo Crystals", price: 12},
+                    "shards": {name: "6oz Crystal Shards", price: 12},
+                    "cubes": {name: "48pc Crystal Cubes", price: 14},
+                    "bars": {name: "12pc Crystal Bars", price: 14},
+                    "stones_regular": {name: "15pc Crystal Stones", price: 26},
+                    "stones_stuffed": {name: "15pc Crystal Stones (Stuffed w/ Raspberry Jam)", price: 32},
+                    "daxtrine_small": {name: "1pc Small Daxtrine Crystal", price: 4},
+                    "daxtrine_large": {name: "1pc Large Daxtrine Crystal", price: 6},
+                    "daxtrine_combo_2": {name: "2pc Daxtrine Crystal Combo", price: 8},
+                    "daxtrine_combo_4": {name: "4pc Daxtrine Crystal Combo", price: 14},
+                    "daxtrine_combo_6": {name: "6pc Daxtrine Crystal Combo", price: 18},
+                    "lucia_2": {name: "2pc Lucia Crystals (Stuffed w/ Raspberry Jam)", price: 14},
+                    "lucia_4": {name: "4pc Lucia Crystals (Stuffed w/ Raspberry Jam)", price: 26},
+                    "lucia_6": {name: "6pc Lucia Crystals (Stuffed w/ Raspberry Jam)", price: 36},
+                    "assortment_small": {name: "Small Assortment Box", price: 28},
+                    "assortment_large": {name: "Large Assortment Box", price: 40}
+                }
+            },
+            amber: {
+                name: "AMBER - VANILLA",
+                items: {
+                    "geo_2": {name: "2pc Geo Crystals", price: 6},
+                    "geo_4": {name: "4pc Geo Crystals", price: 10},
+                    "geo_6": {name: "6pc Geo Crystals", price: 12},
+                    "shards": {name: "6oz Crystal Shards", price: 12},
+                    "cubes": {name: "48pc Crystal Cubes", price: 14},
+                    "bars": {name: "12pc Crystal Bars", price: 14},
+                    "stones_regular": {name: "15pc Crystal Stones", price: 26},
+                    "stones_stuffed": {name: "15pc Crystal Stones (Stuffed w/ Strawberry Jalapeño Jam)", price: 32},
+                    "daxtrine_small": {name: "1pc Small Daxtrine Crystal", price: 4},
+                    "daxtrine_large": {name: "1pc Large Daxtrine Crystal", price: 6},
+                    "daxtrine_combo_2": {name: "2pc Daxtrine Crystal Combo", price: 8},
+                    "daxtrine_combo_4": {name: "4pc Daxtrine Crystal Combo", price: 14},
+                    "daxtrine_combo_6": {name: "6pc Daxtrine Crystal Combo", price: 18},
+                    "lucia_2": {name: "2pc Lucia Crystals (Stuffed w/ Jalapeño Strawberry Jam)", price: 14},
+                    "lucia_4": {name: "4pc Lucia Crystals (Stuffed w/ Jalapeño Strawberry Jam)", price: 26},
+                    "lucia_6": {name: "6pc Lucia Crystals (Stuffed w/ Jalapeño Strawberry Jam)", price: 36},
+                    "assortment_small": {name: "Small Assortment Box", price: 28},
+                    "assortment_large": {name: "Large Assortment Box", price: 40}
+                }
+            },
+            purple: {
+                name: "PURPLE - WATERMELON",
+                items: {
+                    "geo_2": {name: "2pc Geo Crystals", price: 6},
+                    "geo_4": {name: "4pc Geo Crystals", price: 10},
+                    "geo_6": {name: "6pc Geo Crystals", price: 12},
+                    "shards": {name: "6oz Crystal Shards", price: 12},
+                    "cubes": {name: "48pc Crystal Cubes", price: 14},
+                    "bars": {name: "12pc Crystal Bars", price: 14},
+                    "stones_regular": {name: "15pc Crystal Stones", price: 26},
+                    "stones_stuffed": {name: "15pc Crystal Stones (Stuffed w/ Grape Jam)", price: 32},
+                    "daxtrine_small": {name: "1pc Small Daxtrine Crystal", price: 4},
+                    "daxtrine_large": {name: "1pc Large Daxtrine Crystal", price: 6},
+                    "daxtrine_combo_2": {name: "2pc Daxtrine Crystal Combo", price: 8},
+                    "daxtrine_combo_4": {name: "4pc Daxtrine Crystal Combo", price: 14},
+                    "daxtrine_combo_6": {name: "6pc Daxtrine Crystal Combo", price: 18},
+                    "lucia_2": {name: "2pc Lucia Crystals (Stuffed w/ Grape Jam)", price: 14},
+                    "lucia_4": {name: "4pc Lucia Crystals (Stuffed w/ Grape Jam)", price: 26},
+                    "lucia_6": {name: "6pc Lucia Crystals (Stuffed w/ Grape Jam)", price: 36},
+                    "assortment_small": {name: "Small Assortment Box", price: 28},
+                    "assortment_large": {name: "Large Assortment Box", price: 40}
+                }
+            }
+        };
+
+        let productCount = 0;
+
+        function addProductEntry() {
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'product-entry';
+            entryDiv.id = `product-${productCount}`;
+            
+            entryDiv.innerHTML = `
+                <div class="form-group">
+                    <label>Color/Flavor <span class="required">*</span></label>
+                    <select name="products[${productCount}][color]" required onchange="updateProducts(${productCount})">
+                        <option value="">Select Color/Flavor</option>
+                        ${Object.entries(products).map(([key, value]) => 
+                            `<option value="${key}">${value.name}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Product Type <span class="required">*</span></label>
+                    <select name="products[${productCount}][type]" required id="product-type-${productCount}" onchange="calculateTotal()">
+                        <option value="">Select Product Type</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantity <span class="required">*</span></label>
+                    <input type="number" name="products[${productCount}][quantity]" min="1" value="1" required onchange="calculateTotal()">
+                </div>
+                <button type="button" class="remove-product" onclick="removeProduct(${productCount})">Remove</button>
+            `;
+            
+            document.getElementById('productEntries').appendChild(entryDiv);
+            productCount++;
+            calculateTotal();
+        }
+
+        function updateProducts(entryId) {
+            const colorSelect = document.querySelector(`#product-${entryId} select[name="products[${entryId}][color]"]`);
+            const productSelect = document.querySelector(`#product-type-${entryId}`);
+            const color = colorSelect.value;
+            
+            productSelect.innerHTML = '<option value="">Select Product Type</option>';
+            
+            if (color && products[color]) {
+                Object.entries(products[color].items).forEach(([key, item]) => {
+                    productSelect.innerHTML += `<option value="${key}" data-price="${item.price}">${item.name} - $${item.price}</option>`;
+                });
+            }
+            calculateTotal();
+        }
+
+        function removeProduct(entryId) {
+            document.getElementById(`product-${entryId}`).remove();
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            
+            // Calculate products total
+            document.querySelectorAll('.product-entry').forEach(entry => {
+                const productSelect = entry.querySelector('select[name*="[type]"]');
+                const quantityInput = entry.querySelector('input[name*="[quantity]"]');
+                
+                if (productSelect.selectedOptions[0]?.dataset.price) {
+                    total += parseFloat(productSelect.selectedOptions[0].dataset.price) * parseInt(quantityInput.value || 0);
+                }
+            });
+            
+            // Add delivery fee
+            const deliveryOption = document.getElementById('deliveryOption').value;
+            const miles = parseFloat(document.getElementById('deliveryMiles').value || 0);
+            
+            if (deliveryOption === 'delivery_local') {
+                total += 5;
+            } else if (deliveryOption === 'delivery_outside') {
+                total += 5 + (miles * 1);
+            }
+            
+            document.getElementById('orderTotal').textContent = total.toFixed(2);
+        }
+
+        // Show/hide mileage input based on delivery option
+        document.getElementById('deliveryOption').addEventListener('change', function() {
+            const mileageInput = document.getElementById('mileageInput');
+            mileageInput.style.display = this.value === 'delivery_outside' ? 'block' : 'none';
+            calculateTotal();
+        });
+
+        // Add first product entry on load
+        addProductEntry();
+    </script>
+</body>
+</html>
