@@ -107,7 +107,7 @@
             </label>
         </div>
 
-        <button type="submit" class="submit-button">Submit Order</button>
+      <button type="submit" class="submit-button">Submit Order</button>
     </form>
 
     <script>
@@ -294,34 +294,37 @@
             calculateTotal();
         });
 
+        // Form submission handling
+        document.querySelector('form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                // Submit to Netlify
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(new FormData(this)).toString()
+                });
+
+                if (response.ok) {
+                    // Show success message
+                    alert('Thank you for your order! We will contact you shortly to confirm your order details.');
+                    // Reset the form
+                    this.reset();
+                    // Reset product entries
+                    document.getElementById('productEntries').innerHTML = '';
+                    addProductEntry();
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch (error) {
+                alert('There was a problem submitting your order. Please try again.');
+                console.error('Error:', error);
+            }
+        });
+
         // Add first product entry on load
         addProductEntry();
     </script>
-document.querySelector('form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    try {
-        const response = await fetch('/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams(new FormData(this)).toString()
-        });
-        
-        if (response.ok) {
-            // Show success message
-            alert('Thank you for your order! We will contact you shortly to confirm your order details.');
-            // Reset the form
-            this.reset();
-            // Reset product entries
-            document.getElementById('productEntries').innerHTML = '';
-            addProductEntry();
-        } else {
-            throw new Error('Form submission failed');
-        }
-    } catch (error) {
-        alert('There was a problem submitting your order. Please try again.');
-        console.error('Error:', error);
-    }
-});
 </body>
 </html>
