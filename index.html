@@ -29,7 +29,6 @@
   method="POST" 
   data-netlify="true"
   data-netlify-honeypot="bot-field"
-  action="/success"
 >
 <input type="hidden" name="form-name" value="desert-crystal-order">
 <input type="hidden" name="bot-field">
@@ -298,5 +297,31 @@
         // Add first product entry on load
         addProductEntry();
     </script>
+document.querySelector('form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    try {
+        const response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(new FormData(this)).toString()
+        });
+        
+        if (response.ok) {
+            // Show success message
+            alert('Thank you for your order! We will contact you shortly to confirm your order details.');
+            // Reset the form
+            this.reset();
+            // Reset product entries
+            document.getElementById('productEntries').innerHTML = '';
+            addProductEntry();
+        } else {
+            throw new Error('Form submission failed');
+        }
+    } catch (error) {
+        alert('There was a problem submitting your order. Please try again.');
+        console.error('Error:', error);
+    }
+});
 </body>
 </html>
